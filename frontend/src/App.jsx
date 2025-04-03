@@ -12,11 +12,21 @@ function App() {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState(10);
+  const [filters, setFilters] = useState({
+    platform: "",
+    game: "",
+    startDate: "",
+    endDate: "",
+  });
 
-  const searchSolr = async (query, page, rows) => {
+  const gameOptions = ["Warhammer 40k: Darktide"];
+
+  const [sidebarVisible, setSidebarVisible] = useState(true); // State for sidebar visibility
+
+  const searchSolr = async (query, page, rows, filters) => {
     setLoading(true);
     try {
-      const data = await getGameReviews(query, rows, page * rows);
+      const data = await getGameReviews(query, rows, page * rows, filters);
       setSearchResults(data.response.docs);
       setTotalPages(Math.ceil(data.response.numFound / rows));
     } catch (error) {
@@ -27,21 +37,89 @@ function App() {
 
   useEffect(() => {
     setPage(0);
-    searchSolr(query, 0, rows);
-  }, [query, rows]);
+    searchSolr(query, 0, rows, filters);
+  }, [query, rows, filters]);
 
   useEffect(() => {
-    searchSolr(query, page, rows);
+    searchSolr(query, page, rows, filters);
   }, [page]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full">
+    <div className="min-h-screen flex bg-gray-100">
+      {/* Sidebar with toggle */}
+      <div
+        className={`w-1/4 bg-white p-4 shadow-lg rounded-lg transition-all duration-300 ${sidebarVisible ? "block" : "hidden"}`}
+      >
+        <h3 className="text-lg font-semibold mb-2">Filters</h3>
+        <div className="mb-2">
+          <label className="block text-sm font-medium">Platform</label>
+          <select
+            className="border rounded p-1 w-full"
+            value={filters.platform}
+            onChange={(e) =>
+              setFilters({ ...filters, platform: e.target.value })
+            }
+          >
+            <option value="">All</option>
+            <option value="Reddit">Reddit</option>
+            <option value="Steam">Steam</option>
+            <option value="Metacritic">Metacritic</option>
+          </select>
+        </div>
+        <div className="mb-2">
+          <label className="block text-sm font-medium">Game</label>
+          <select
+            className="border rounded p-1 w-full"
+            value={filters.game}
+            onChange={(e) => setFilters({ ...filters, game: e.target.value })}
+          >
+            <option value="">All</option>
+            {gameOptions.map((game) => (
+              <option key={game} value={game}>
+                {game}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-2">
+          <label className="block text-sm font-medium">Start Date</label>
+          <input
+            type="date"
+            className="border rounded p-1 w-full"
+            value={filters.startDate}
+            onChange={(e) =>
+              setFilters({ ...filters, startDate: e.target.value })
+            }
+          />
+        </div>
+        <div className="mb-2">
+          <label className="block text-sm font-medium">End Date</label>
+          <input
+            type="date"
+            className="border rounded p-1 w-full"
+            value={filters.endDate}
+            onChange={(e) =>
+              setFilters({ ...filters, endDate: e.target.value })
+            }
+          />
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 p-6">
+        <button
+          onClick={() => setSidebarVisible(!sidebarVisible)} // Toggle sidebar visibility
+          className="mb-4 p-2 bg-blue-500 text-white rounded-md"
+        >
+          {sidebarVisible ? "Hide Filters" : "Show Filters"}
+        </button>
+
         <SearchBar
           query={query}
           setQuery={setQuery}
           setSearchResults={setSearchResults}
         />
+
         <div className="flex justify-end mb-4">
           <label className="mr-2">Results per page:</label>
           <select
@@ -55,6 +133,7 @@ function App() {
             <option value={50}>50</option>
           </select>
         </div>
+
         <div className="mt-4 space-y-4">
           {searchResults.length > 0 ? (
             searchResults.map((review, index) => {
@@ -76,6 +155,7 @@ function App() {
             <p>No results found</p>
           )}
         </div>
+
         <div className="flex justify-between mt-4">
           <button
             className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
