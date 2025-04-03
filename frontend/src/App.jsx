@@ -1,56 +1,105 @@
-import {useEffect, useState} from "react";
-import {getGameReviews} from "./api/axios.jsx";
+import { useEffect, useState } from "react";
+import { getGameReviews } from "./api/axios.jsx";
 import SearchBar from "./SearchBar.jsx";
+import RedditCard from "./RedditCard.jsx";
+import SteamCard from "./SteamCard.jsx";
+import MetacriticCard from "./MetacriticCard.jsx";
 
 function App() {
-    const [query, setQuery] = useState("");
-    const [searchResults, setSearchResults] = useState([]);
-    let rows = 10;
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [rows, setRows] = useState(10);
 
-    // Function to fetch data from Solr
-    const searchSolr = async (query, rows) => {
-        try {
-            const data = await getGameReviews(query, rows);
-            setSearchResults(data.response.docs);
-        } catch (error) {
-            console.log(error);
-        }
+  const searchSolr = async (query, page, rows) => {
+    setLoading(true);
+    try {
+      const data = await getGameReviews(query, rows, page * rows);
+      setSearchResults(data.response.docs);
+      setTotalPages(Math.ceil(data.response.numFound / rows));
+    } catch (error) {
+      console.log(error);
     }
+    setLoading(false);
+  };
 
-    // Fetch 10 results when the component mounts
-    useEffect(() => {
-        searchSolr(query, rows); // Run search when the component first loads
-    }, []); // Empty dependency array means this effect runs once after initial render
+  useEffect(() => {
+    setPage(0);
+    searchSolr(query, 0, rows);
+  }, [query, rows]);
 
+  useEffect(() => {
+    searchSolr(query, page, rows);
+  }, [page]);
 
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full">
-                <SearchBar query={query} setQuery={setQuery} setSearchResults={setSearchResults}/>
-                <div className="space-y-4">
-                    {searchResults.length > 0 ? (
-                        searchResults.map((doc, index) => (
-                            <div key={index} className="bg-white p-4 rounded-lg shadow-lg">
-                                <h3 className="text-xl font-semibold mb-2">
-                                    Review by {doc.username[0]}
-                                </h3>
-                                <p className="text-sm text-gray-500 mb-2">
-                                    Platform: {doc.platform.join(", ")}
-                                </p>
-                                <p className="text-sm text-gray-500 mb-2">
-                                    Review Type: {doc.review_type.join(", ")}
-                                </p>
-                                <p className="text-lg font-bold mb-2">Score: {doc.score[0]}</p>
-                                <p className="text-gray-700 mb-2">{doc.review[0]}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No results found</p>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full">
+        <SearchBar
+          query={query}
+          setQuery={setQuery}
+          setSearchResults={setSearchResults}
+        />
+        <div className="flex justify-end mb-4">
+          <label className="mr-2">Results per page:</label>
+          <select
+            className="border rounded p-1"
+            value={rows}
+            onChange={(e) => setRows(parseInt(e.target.value))}
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
         </div>
-    );
+        <div className="mt-4 space-y-4">
+          {searchResults.length > 0 ? (
+            searchResults.map((review, index) => {
+              const CardComponent = review.platform.includes("Reddit")
+                ? RedditCard
+                : review.platform.includes("Steam")
+                  ? SteamCard
+                  : review.platform.includes("Metacritic")
+                    ? MetacriticCard
+                    : null;
+
+              return CardComponent ? (
+                <div key={index}>
+                  <CardComponent review={review} />
+                </div>
+              ) : null;
+            })
+          ) : (
+            <p>No results found</p>
+          )}
+        </div>
+        <div className="flex justify-between mt-4">
+          <button
+            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+            disabled={page === 0}
+          >
+            Previous
+          </button>
+          <p>
+            Page {page + 1} of {totalPages}
+          </p>
+          <button
+            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+            onClick={() =>
+              setPage((prev) => Math.min(prev + 1, totalPages - 1))
+            }
+            disabled={page >= totalPages - 1}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default App;

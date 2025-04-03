@@ -15,6 +15,9 @@ docker run -d -v "$PWD/solrdata:/var/solr" -p 8983:8983 --name sc4021-solr solr 
 
 # Post the reviews.csv file to the game_reviews core
 docker run --rm -v "$PWD/metacritic_reviews:/mydata" --network=host solr solr post -c game_reviews /mydata/alpha-protocol.csv
+
+docker run --rm -v "$PWD/data:/mydata" --network=host solr solr post -c game_reviews /mydata/mock_data.csv
+
 ```
 
 ## Running frontend
@@ -30,4 +33,9 @@ yarn install
 # Start Vite Development Server (Either npm or yarn)
 npm run dev
 yarn dev
-```
+
+````
+
+## To currently query
+
+platform : field
