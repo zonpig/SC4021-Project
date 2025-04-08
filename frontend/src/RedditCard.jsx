@@ -1,3 +1,4 @@
+import SentimentBadge from "./Sentiment";
 function RedditCard({ review }) {
   const {
     Subreddit: subreddit,
@@ -11,36 +12,60 @@ function RedditCard({ review }) {
     timestamp_updated_date: timestamp,
     review_text,
   } = review;
-
   return (
-    <div className="p-6 shadow-lg rounded-lg border border-gray-300  mx-auto bg-white max-w-3xl w-full">
-      <div className="bg-[#FF4500] text-white py-2 px-4 rounded-t-lg">
-        <h2 className="text-xl font-bold">r/{subreddit}</h2>
+    <div className="rounded-lg w-full mx-auto bg-white shadow-lg">
+      <div className=" bg-[#FF4500] text-white py-2 px-4 rounded-t-lg flex flex-row justify-between items-center">
+        <div>
+          <h2 className="text-xl font-bold">{game}</h2>
+        </div>
+        <div>
+          <img
+            src={`https://i.imgur.com/ws2kAA0.png`}
+            alt="Platform Logo"
+            className="w-5 h-5 mb-2 object-contain mt-2 flex justify-end"
+          />
+        </div>
       </div>
-      <div className="p-4 bg-gray-50 rounded-b-lg">
-        <p className="text-gray-600 text-sm mb-1">
-          Game: <span className="font-semibold">{game}</span>
-        </p>
-        <p className="text-gray-600 text-sm">Platform: {platform}</p>
-        <p className="text-gray-600 text-sm">
-          Date: {new Date(timestamp).toLocaleDateString()}
-        </p>
-        <p className="text-gray-600 text-sm">{title}</p>
-        <p className="text-gray-600 text-sm">Level: {level}</p>
-        <p className="text-gray-600 text-sm">Score: {score}</p>
-        <p className="text-gray-600 text-sm">
-          Review: &quot;{review_text}&quot;
-        </p>
-        <p className="text-gray-600 text-sm">Sentiment: {sentiment}</p>
-        <button
-          className="mt-4 w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 bg-[#FF4500] text-white font-semibold hover:bg-[#D93A00] transition"
-          onClick={() => window.open(url, "_blank")}
-        >
-          View Post
-        </button>
+      <div className="p-4 rounded-b-lg flex flex-col">
+        <div className="flex flex-row justify-between items-center">
+          <div>
+            <p className="text-sm font-bold">r/{subreddit}</p>
+          </div>
+          <div className="flex justify-end">
+            <SentimentBadge sentiment={sentiment} />
+          </div>
+        </div>
+        <div className="rounded-lg bg-gray-200 p-4 my-2">
+          <div className="text-gray-800 text-sm">{review_text}</div>
+
+          <div className="flex justify-end">
+            <button
+              className="mt-4 p-1 bg-gray-300  gap-2 rounded-lg hover:bg-[#D93A00] transition"
+              onClick={() => window.open(url, "_blank")}
+            >
+              <div className = "flex flex-row gap-2 px-2 flex items-center justify-center">
+              View Post
+              <img src="link.png" alt="Open Logo" className="w-4 h-4" />
+              </div>
+            </button>
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex flex-row gap-2">
+              <p className="text-gray-600 text-sm">Level: {level}</p>
+              <p className="text-gray-600 text-sm">Score: {score}</p>
+            </div>
+            <div className="text-gray-500 text-sm flex justify-end">
+              Updated: {new Date(timestamp).toLocaleDateString()}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
 export default RedditCard;
+
+

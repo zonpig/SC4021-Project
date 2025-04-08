@@ -107,20 +107,22 @@ function App() {
 
       {/* Main content */}
       <div className="flex-1 p-6">
-        <button
-          onClick={() => setSidebarVisible(!sidebarVisible)} // Toggle sidebar visibility
-          className="mb-4 p-2 bg-blue-500 text-white rounded-md"
-        >
-          {sidebarVisible ? "Hide Filters" : "Show Filters"}
-        </button>
+
 
         <SearchBar
           query={query}
           setQuery={setQuery}
           setSearchResults={setSearchResults}
         />
+        <div className = "flex flex-row justify-between items-center py-4">
+                <button
+          onClick={() => setSidebarVisible(!sidebarVisible)} // Toggle sidebar visibility
+          className=" p-2 bg-blue-500 text-white rounded-md"
+        >
+          {sidebarVisible ? "Hide Filters" : "Show Filters"}
+        </button>
 
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end items-center">
           <label className="mr-2">Results per page:</label>
           <select
             className="border rounded p-1"
@@ -133,8 +135,10 @@ function App() {
             <option value={50}>50</option>
           </select>
         </div>
+        </div>
 
-        <div className="mt-4 space-y-4">
+        
+        <div className="space-y-4">
           {searchResults.length > 0 ? (
             searchResults.map((review, index) => {
               const CardComponent = review.platform.includes("Reddit")
