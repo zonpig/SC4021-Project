@@ -19,22 +19,25 @@ const SearchBar = ({ query, setQuery, setSearchResults }) => {
   };
 
   return (
-    <header>
+    <header className = "flex justify-center">
       <form
-        className="bg-white p-6 rounded-lg shadow-lg max-w-3xl w-full"
+        className="p-6 rounded-lg  max-w-3xl w-full"
         onSubmit={handleSubmit}
       >
+        <div className = "flex flex-row border border-gray-300 rounded-lg items-center bg-white shadow-lg">
         <input
-          className="border p-2 w-full mb-4"
+          className="p-2 w-full focus: outline-none"
           type="text"
           id="search"
           value={query} // Bind the input field value to the query state
           onChange={handleSearchChange}
           placeholder="Search for games"
         />
-        <button className="bg-blue-500 text-white px-4 py-2 w-full mb-4">
+        <button className="text-black px-4">
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </button>
+        </div>
+    
       </form>
     </header>
   );

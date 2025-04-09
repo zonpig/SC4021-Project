@@ -18,19 +18,19 @@ function MetacriticCard({ review }) {
   return (
     // <div className="p-6 shadow-lg rounded-lg border border-gray-300 max-w-5xl w-full mx-auto text-white">
     <div className="border border-gray-300 shadow-lg rounded-lg w-full mx-auto bg-gray-100">
-      <div className="text-white py-2 px-4 rounded-t-lg flex flex-row justify-between items-center border-b-2 border-gray-200">
+      <div className="text-white py-2 px-4 rounded-t-lg flex flex-row justify-between items-center">
         <div>
           <h2 className="text-xl font-bold text-black">{game}</h2>
         </div>
         <div>
           <img
-            src={`https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Metacritic_logo.svg/2560px-Metacritic_logo.svg.png`}
+            src='/metacritic.png'
             alt="Platform Logo"
-            className="w-36 h-5 mb-2 object-contain mt-2 flex justify-end"
+            className="h-10 py-2 object-contain flex justify-end"
           />
         </div>
       </div>
-      <div className="p-4 rounded-b-lg flex flex-col">
+      <div className="p-4 rounded-b-lg flex flex-col bg-white">
         <div className = "flex flex-row justify-between items-center">
           <div>
           <p className="text-sm font-bold">

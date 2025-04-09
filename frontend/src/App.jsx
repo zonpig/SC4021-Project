@@ -19,12 +19,48 @@ function App() {
     endDate: "",
   });
 
-  const gameOptions = ["Warhammer 40k: Darktide"];
+  const gameOptions = [
+    "Warhammer 40k: Darktide", // exist but dont return
+    "Battlefield 2042",
+    "Cyberpunk 2077",
+    "Days Gone",
+    "Fallout 76",
+    "Final Fantasy 14",
+    "Sea of Thieves",
+    "Total War: Rome 2", // cannot find
+    "Wasteland 3",
+    "Wildfrost",
+  ];
 
   const [sidebarVisible, setSidebarVisible] = useState(true); // State for sidebar visibility
 
   const searchSolr = async (query, page, rows, filters) => {
     setLoading(true);
+  
+    const solrFilters = [];
+    // Sending Request to the Target: GET /solr/game_reviews/select?q=*:*&rows=10&start=0&fq=game:Battlefield+2042
+    // Sending Request to the Target: GET /solr/game_reviews/select?q=*:*&rows=10&start=0&fq=platform:Reddit
+
+    // Add each filter conditionally if they exist
+    if (filters.game) {
+      solrFilters.push(`game:"${filters.game}"`);
+    }
+  
+    if (filters.platform) {
+      solrFilters.push(`platform:${filters.platform}`);
+    }
+  
+    if (filters.startDate && filters.endDate) {
+      solrFilters.push(
+        `review_date:[${filters.startDate} TO ${filters.endDate}]`
+      );
+    }
+  
+    // Combine all filters with "AND"
+    const fq = solrFilters.join(" AND ");
+    console.log("Filters:", filters);
+    console.log("After", fq)
+  
     try {
       const data = await getGameReviews(query, rows, page * rows, filters);
       setSearchResults(data.response.docs);
@@ -32,8 +68,10 @@ function App() {
     } catch (error) {
       console.log(error);
     }
+  
     setLoading(false);
   };
+  
 
   useEffect(() => {
     setPage(0);
@@ -44,13 +82,26 @@ function App() {
     searchSolr(query, page, rows, filters);
   }, [page]);
 
+  
+
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-gray-100">
+      <div className = "mt-20">
+      <h3 className="text-3xl font-bold flex justify-center">Game Reviews</h3>
+      <SearchBar
+          query={query}
+          setQuery={setQuery}
+          setSearchResults={setSearchResults}
+        />
+        </div>
+      <div className = "flex flex-row w-full">
       {/* Sidebar with toggle */}
       <div
-        className={`w-1/4 bg-white p-4 shadow-lg rounded-lg transition-all duration-300 ${sidebarVisible ? "block" : "hidden"}`}
+        className={`w-1/4 p-4 mt-20 transition-all duration-300 ${sidebarVisible ? "block" : "hidden"}`}
       >
-        <h3 className="text-lg font-semibold mb-2">Filters</h3>
+        <div className = "rounded-lg bg-white shadow-lg p-4">
+        <h3 className="text-xl font-semibold mb-2">Filters</h3>
+        {/* Platforms */}
         <div className="mb-2">
           <label className="block text-sm font-medium">Platform</label>
           <select
@@ -66,12 +117,13 @@ function App() {
             <option value="Metacritic">Metacritic</option>
           </select>
         </div>
+        {/* Games */}
         <div className="mb-2">
           <label className="block text-sm font-medium">Game</label>
           <select
             className="border rounded p-1 w-full"
             value={filters.game}
-            onChange={(e) => setFilters({ ...filters, game: e.target.value })}
+            onChange={(e) => setFilters({ ...filters, game: e.target.value })} // need to wrap the game because solr handles colon differently
           >
             <option value="">All</option>
             {gameOptions.map((game) => (
@@ -81,6 +133,7 @@ function App() {
             ))}
           </select>
         </div>
+        {/* Start Date to End Date */}
         <div className="mb-2">
           <label className="block text-sm font-medium">Start Date</label>
           <input
@@ -104,40 +157,34 @@ function App() {
           />
         </div>
       </div>
-
+      </div>
+      
       {/* Main content */}
       <div className="flex-1 p-6">
-
-
-        <SearchBar
-          query={query}
-          setQuery={setQuery}
-          setSearchResults={setSearchResults}
-        />
-        <div className = "flex flex-row justify-between items-center py-4">
-                <button
-          onClick={() => setSidebarVisible(!sidebarVisible)} // Toggle sidebar visibility
-          className=" p-2 bg-blue-500 text-white rounded-md"
-        >
-          {sidebarVisible ? "Hide Filters" : "Show Filters"}
-        </button>
-
-        <div className="flex justify-end items-center">
-          <label className="mr-2">Results per page:</label>
-          <select
-            className="border rounded p-1"
-            value={rows}
-            onChange={(e) => setRows(parseInt(e.target.value))}
-          >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={50}>50</option>
-          </select>
-        </div>
-        </div>
-
         
+        <div className="flex flex-row justify-between items-center py-4">
+          <button
+            onClick={() => setSidebarVisible(!sidebarVisible)} // Toggle sidebar visibility
+            className=" p-2 bg-gray-200 text-black rounded-md"
+          >
+            {sidebarVisible ? "Hide Filters" : "Show Filters"}
+          </button>
+
+          <div className="flex justify-end items-center">
+            <label className="mr-2">Results per page:</label>
+            <select
+              className="border rounded p-1"
+              value={rows}
+              onChange={(e) => setRows(parseInt(e.target.value))}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
+
         <div className="space-y-4">
           {searchResults.length > 0 ? (
             searchResults.map((review, index) => {
@@ -173,14 +220,19 @@ function App() {
           </p>
           <button
             className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
-            onClick={() =>
-              setPage((prev) => Math.min(prev + 1, totalPages - 1))
-            }
+            onClick={() => {
+              setPage((prev) => Math.min(prev + 1, totalPages - 1));
+              // Scroll the page to the top
+              window.scrollTo(0, 0);
+              
+            }}
+            
             disabled={page >= totalPages - 1}
           >
             Next
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

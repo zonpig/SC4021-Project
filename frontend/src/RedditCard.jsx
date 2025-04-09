@@ -20,9 +20,9 @@ function RedditCard({ review }) {
         </div>
         <div>
           <img
-            src={`https://i.imgur.com/ws2kAA0.png`}
+            src='/reddit.png'
             alt="Platform Logo"
-            className="w-5 h-5 mb-2 object-contain mt-2 flex justify-end"
+            className="h-10 py-2 object-contain flex justify-end"
           />
         </div>
       </div>
