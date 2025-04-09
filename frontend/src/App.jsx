@@ -17,6 +17,7 @@ function App() {
     game: "",
     startDate: "",
     endDate: "",
+    sort: "",
   });
 
   const gameOptions = [
@@ -37,29 +38,6 @@ function App() {
   const searchSolr = async (query, page, rows, filters) => {
     setLoading(true);
   
-    const solrFilters = [];
-    // Sending Request to the Target: GET /solr/game_reviews/select?q=*:*&rows=10&start=0&fq=game:Battlefield+2042
-    // Sending Request to the Target: GET /solr/game_reviews/select?q=*:*&rows=10&start=0&fq=platform:Reddit
-
-    // Add each filter conditionally if they exist
-    if (filters.game) {
-      solrFilters.push(`game:"${filters.game}"`);
-    }
-  
-    if (filters.platform) {
-      solrFilters.push(`platform:${filters.platform}`);
-    }
-  
-    if (filters.startDate && filters.endDate) {
-      solrFilters.push(
-        `review_date:[${filters.startDate} TO ${filters.endDate}]`
-      );
-    }
-  
-    // Combine all filters with "AND"
-    const fq = solrFilters.join(" AND ");
-    console.log("Filters:", filters);
-    console.log("After", fq)
   
     try {
       const data = await getGameReviews(query, rows, page * rows, filters);
@@ -156,11 +134,26 @@ function App() {
             }
           />
         </div>
+        {/* Sort */}
+        <div className="mb-2">
+          <label className="block text-sm font-medium">Sort By</label>
+          <select
+            className="border rounded p-1 w-full"
+            value={filters.sort}
+            onChange={(e) =>
+              setFilters({ ...filters, sort: e.target.value })
+            }
+          >
+            <option value="">All</option>
+            <option value="Ascending">Ascending</option>
+            <option value="Descending">Descending</option>
+          </select>
+        </div>
       </div>
       </div>
       
       {/* Main content */}
-      <div className="flex-1 p-6">
+      <div className={`flex-1 p-6 ${sidebarVisible ? "" : "mx-4"}`}>
         
         <div className="flex flex-row justify-between items-center py-4">
           <button
@@ -185,7 +178,7 @@ function App() {
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className='space-y-4'>
           {searchResults.length > 0 ? (
             searchResults.map((review, index) => {
               const CardComponent = review.platform.includes("Reddit")
