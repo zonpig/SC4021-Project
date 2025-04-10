@@ -12,10 +12,7 @@ source venv/bin/activate
 ```bash
 # Start a Solr container named sc4021 with a pre-created core game_reviews
 docker run -d -v "$PWD/solrdata:/var/solr" -p 8983:8983 --name sc4021-solr solr solr-precreate game_reviews
-
-# Post the reviews.csv file to the game_reviews core
-docker run --rm -v "$PWD/metacritic_reviews:/mydata" --network=host solr solr post -c game_reviews /mydata/alpha-protocol.csv
-# store the mock_data file from gdrive into data folder, then run 
+xx# store the mock_data file from gdrive into data folder, then run 
 docker run --rm -v "$PWD/data:/mydata" --network=host solr solr post -c game_reviews /mydata/mock_data.csv
 
 ```
