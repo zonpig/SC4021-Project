@@ -4,6 +4,8 @@ import SearchBar from "./SearchBar.jsx";
 import RedditCard from "./RedditCard.jsx";
 import SteamCard from "./SteamCard.jsx";
 import MetacriticCard from "./MetacriticCard.jsx";
+import SentimentPieChart from "./SentimentPieChart.jsx";
+import SentimentBarChart from "./SentimentBarChart.jsx";
 
 function App() {
   const [query, setQuery] = useState("");
@@ -34,23 +36,22 @@ function App() {
   ];
 
   const [sidebarVisible, setSidebarVisible] = useState(true); // State for sidebar visibility
-
+  const [activeTab, setActiveTab] = useState("reviews"); // State for sidebar visibility
+  const [chartType, setChartType] = useState("pie"); // State for chart type
   const searchSolr = async (query, page, rows, filters) => {
     setLoading(true);
-  
-  
+
     try {
-      const data = await getGameReviews(query, rows, page * rows, filters);
+      const data = await getGameReviews(activeTab, query, rows, page * rows, filters);
       setSearchResults(data.response.docs);
       setTotalPages(Math.ceil(data.response.numFound / rows));
     } catch (error) {
       console.log(error);
     }
-  
+
     setLoading(false);
   };
-  
-
+  // this is for reviews tab
   useEffect(() => {
     setPage(0);
     searchSolr(query, 0, rows, filters);
@@ -59,173 +60,256 @@ function App() {
   useEffect(() => {
     searchSolr(query, page, rows, filters);
   }, [page]);
+  // this is for charts tab
+  useEffect(() => {
+    // Trigger search when `activeTab` changes
+    setPage(0); // Optionally reset page to 0 when the activeTab changes
+    searchSolr(query, 0, rows, filters);
+  }, [activeTab]); // Add `activeTab` as a dependency
 
-  
+  // display text in charts for user to know what the graph is about 
+  // Constructing the display text for the paragraph
+  const getDisplayText = (chartType) => {
+
+    let displayText = chartType === "pie" ? "Pie Chart displaying Sentiment Analysis" : "Bar Chart displaying Sentiment Analysis";
+
+    const platformText = filters.platform ? `Across "${filters.platform}"` : "Across All Platforms";
+
+    // displayText += ` across ${platformText}`;
+
+    const gameText = filters.game ? `for "${filters.game}"`: ` for All Games`
+    // displayText += gameText
+    
+    const dateText = (filters.startDate && filters.endDate) ? (` starting from [${filters.startDate} to ${filters.endDate}]`) : (filters.startDate ? ` starting from [${filters.startDate}]` : "");
+    // displayText += dateText;
+
+    const sortText = filters.sort? ` sorted by: ${filters.sort}`: "" ;
+    // displayText += sortText
+
+
+    return(
+      <div className = "space-x-2 p-8 flex items-center flex flex-col">
+      <p>{displayText}</p>
+      <div className = "flex flex-row space-x-2 text-2xl font-bold">
+      <p>{platformText}</p>
+      <p>{gameText}</p>
+      <p>{dateText}</p>
+      <p>{sortText}</p>
+      </div>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <div className = "mt-20">
-      <h3 className="text-3xl font-bold flex justify-center">Game Reviews</h3>
-      <SearchBar
+      <div className="mt-20">
+        <h3 className="text-3xl font-bold flex justify-center">Game Reviews</h3>
+        <SearchBar
           query={query}
           setQuery={setQuery}
           setSearchResults={setSearchResults}
         />
-        </div>
-      <div className = "flex flex-row w-full">
-      {/* Sidebar with toggle */}
-      <div
-        className={`w-1/4 p-4 mt-20 transition-all duration-300 ${sidebarVisible ? "block" : "hidden"}`}
-      >
-        <div className = "rounded-lg bg-white shadow-lg p-4">
-        <h3 className="text-xl font-semibold mb-2">Filters</h3>
-        {/* Platforms */}
-        <div className="mb-2">
-          <label className="block text-sm font-medium">Platform</label>
-          <select
-            className="border rounded p-1 w-full"
-            value={filters.platform}
-            onChange={(e) =>
-              setFilters({ ...filters, platform: e.target.value })
-            }
-          >
-            <option value="">All</option>
-            <option value="Reddit">Reddit</option>
-            <option value="Steam">Steam</option>
-            <option value="Metacritic">Metacritic</option>
-          </select>
-        </div>
-        {/* Games */}
-        <div className="mb-2">
-          <label className="block text-sm font-medium">Game</label>
-          <select
-            className="border rounded p-1 w-full"
-            value={filters.game}
-            onChange={(e) => setFilters({ ...filters, game: e.target.value })} // need to wrap the game because solr handles colon differently
-          >
-            <option value="">All</option>
-            {gameOptions.map((game) => (
-              <option key={game} value={game}>
-                {game}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Start Date to End Date */}
-        <div className="mb-2">
-          <label className="block text-sm font-medium">Start Date</label>
-          <input
-            type="date"
-            className="border rounded p-1 w-full"
-            value={filters.startDate}
-            onChange={(e) =>
-              setFilters({ ...filters, startDate: e.target.value })
-            }
-          />
-        </div>
-        <div className="mb-2">
-          <label className="block text-sm font-medium">End Date</label>
-          <input
-            type="date"
-            className="border rounded p-1 w-full"
-            value={filters.endDate}
-            onChange={(e) =>
-              setFilters({ ...filters, endDate: e.target.value })
-            }
-          />
-        </div>
-        {/* Sort */}
-        <div className="mb-2">
-          <label className="block text-sm font-medium">Sort By</label>
-          <select
-            className="border rounded p-1 w-full"
-            value={filters.sort}
-            onChange={(e) =>
-              setFilters({ ...filters, sort: e.target.value })
-            }
-          >
-            <option value="">All</option>
-            <option value="Ascending">Ascending</option>
-            <option value="Descending">Descending</option>
-          </select>
-        </div>
       </div>
-      </div>
-      
-      {/* Main content */}
-      <div className={`flex-1 p-6 ${sidebarVisible ? "" : "mx-4"}`}>
-        
-        <div className="flex flex-row justify-between items-center py-4">
-          <button
-            onClick={() => setSidebarVisible(!sidebarVisible)} // Toggle sidebar visibility
-            className=" p-2 bg-gray-200 text-black rounded-md"
-          >
-            {sidebarVisible ? "Hide Filters" : "Show Filters"}
-          </button>
-
-          <div className="flex justify-end items-center">
-            <label className="mr-2">Results per page:</label>
-            <select
-              className="border rounded p-1"
-              value={rows}
-              onChange={(e) => setRows(parseInt(e.target.value))}
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+      <div className="flex flex-row w-full">
+        {/* Sidebar with toggle */}
+        <div
+          className={`w-1/4 p-4 mt-20 transition-all duration-300 ${sidebarVisible ? "block" : "hidden"}`}
+        >
+          <div className="rounded-lg bg-white shadow-lg p-4">
+            <h3 className="text-xl font-semibold mb-2">Filters</h3>
+            {/* Platforms */}
+            <div className="mb-2">
+              <label className="block text-sm font-medium">Platform</label>
+              <select
+                className="border rounded p-1 w-full"
+                value={filters.platform}
+                onChange={(e) =>
+                  setFilters({ ...filters, platform: e.target.value })
+                }
+              >
+                <option value="">All</option>
+                <option value="Reddit">Reddit</option>
+                <option value="Steam">Steam</option>
+                <option value="Metacritic">Metacritic</option>
+              </select>
+            </div>
+            {/* Games */}
+            <div className="mb-2">
+              <label className="block text-sm font-medium">Game</label>
+              <select
+                className="border rounded p-1 w-full"
+                value={filters.game}
+                onChange={(e) =>
+                  setFilters({ ...filters, game: e.target.value })
+                } // need to wrap the game because solr handles colon differently
+              >
+                <option value="">All</option>
+                {gameOptions.map((game) => (
+                  <option key={game} value={game}>
+                    {game}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Start Date to End Date */}
+            <div className="mb-2">
+              <label className="block text-sm font-medium">Start Date</label>
+              <input
+                type="date"
+                className="border rounded p-1 w-full"
+                value={filters.startDate}
+                onChange={(e) =>
+                  setFilters({ ...filters, startDate: e.target.value })
+                }
+              />
+            </div>
+            <div className="mb-2">
+              <label className="block text-sm font-medium">End Date</label>
+              <input
+                type="date"
+                className="border rounded p-1 w-full"
+                value={filters.endDate}
+                onChange={(e) =>
+                  setFilters({ ...filters, endDate: e.target.value })
+                }
+              />
+            </div>
+            {/* Sort */}
+            <div className="mb-2">
+              <label className="block text-sm font-medium">Sort By</label>
+              <select
+                className="border rounded p-1 w-full"
+                value={filters.sort}
+                onChange={(e) =>
+                  setFilters({ ...filters, sort: e.target.value })
+                }
+              >
+                <option value="">All</option>
+                <option value="Ascending">Ascending</option>
+                <option value="Descending">Descending</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        <div className='space-y-4'>
-          {searchResults.length > 0 ? (
-            searchResults.map((review, index) => {
-              const CardComponent = review.platform.includes("Reddit")
-                ? RedditCard
-                : review.platform.includes("Steam")
-                  ? SteamCard
-                  : review.platform.includes("Metacritic")
-                    ? MetacriticCard
-                    : null;
+        {/* Main content */}
+        <div className={`flex-1 p-6 ${sidebarVisible ? "" : "mx-4"}`}>
+          {/* display the hide filters button */}
+          <div className="flex flex-row justify-between items-center mt-4">
+            <button
+              onClick={() => setSidebarVisible(!sidebarVisible)} // Toggle sidebar visibility
+              className=" p-2 bg-gray-200 text-black rounded-md"
+            >
+              {sidebarVisible ? "Hide Filters" : "Show Filters"}
+            </button>
+            {/* Tab Buttons */}
+            <div className="flex space-x-0 mb-4">
+              <button
+                className={`px-4 py-2 rounded-l-lg ${
+                  activeTab === "reviews"
+                    ? "bg-blue-400 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => setActiveTab("reviews")}
+              >
+                Reviews
+              </button>
+              <button
+                className={`px-4 py-2 rounded-r-lg ${
+                  activeTab === "charts"
+                    ? "bg-blue-400 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => setActiveTab("charts")}
+              >
+                Charts
+              </button>
+            </div>
+          </div>
+          {/* main body  */}
+          <div className = "">
+            {activeTab === "reviews" ? (
+              <div>
+                <div className="space-y-4">
+                  <div className="flex justify-end items-center">
+                    <label className="mr-2">Results per page:</label>
+                    <select
+                      className="border rounded p-1"
+                      value={rows}
+                      onChange={(e) => setRows(parseInt(e.target.value))}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                  </div>
+                  {searchResults.length > 0 ? (
+                    searchResults.map((review, index) => {
+                      const CardComponent = review.platform.includes("Reddit")
+                        ? RedditCard
+                        : review.platform.includes("Steam")
+                          ? SteamCard
+                          : review.platform.includes("Metacritic")
+                            ? MetacriticCard
+                            : null;
 
-              return CardComponent ? (
-                <div key={index}>
-                  <CardComponent review={review} />
+                      return CardComponent ? (
+                        <div key={index}>
+                          <CardComponent review={review} />
+                        </div>
+                      ) : null;
+                    })
+                  ) : (
+                    <p>No results found</p>
+                  )}
                 </div>
-              ) : null;
-            })
-          ) : (
-            <p>No results found</p>
-          )}
-        </div>
 
-        <div className="flex justify-between mt-4">
-          <button
-            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
-            onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
-            disabled={page === 0}
-          >
-            Previous
-          </button>
-          <p>
-            Page {page + 1} of {totalPages}
-          </p>
-          <button
-            className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
-            onClick={() => {
-              setPage((prev) => Math.min(prev + 1, totalPages - 1));
-              // Scroll the page to the top
-              window.scrollTo(0, 0);
-              
-            }}
-            
-            disabled={page >= totalPages - 1}
-          >
-            Next
-          </button>
+                <div className="flex justify-between mt-4">
+                  <button
+                    className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+                    onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+                    disabled={page === 0}
+                  >
+                    Previous
+                  </button>
+                  <p>
+                    Page {page + 1} of {totalPages}
+                  </p>
+                  <button
+                    className="px-4 py-2 bg-gray-300 rounded-lg disabled:opacity-50"
+                    onClick={() => {
+                      setPage((prev) => Math.min(prev + 1, totalPages - 1));
+                      // Scroll the page to the top
+                      window.scrollTo(0, 0);
+                    }}
+                    disabled={page >= totalPages - 1}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className = "">
+                {/* Content for Charts */}
+                {/* pie chart */}
+                <div className = "bg-white rounded-xl">
+                <div className = "">{getDisplayText("pie")}</div>
+                <div className = "flex justify-center items-center">
+                <SentimentPieChart solrData = {searchResults} />
+                </div>
+                </div>
+                {/* bar chart */}
+                <div className = "bg-white rounded-xl mt-2">
+                <div className = "">{getDisplayText("bar")}</div>
+                <div className = "flex justify-center items-center w-full">
+                <SentimentBarChart solrData = {searchResults} />
+                </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );
