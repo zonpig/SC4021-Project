@@ -16,7 +16,7 @@ export const getGameReviews = async (
   filters = {},
 ) => {
   console.log(query + " " + rows);
-  const { platform, game, startDate, endDate, sort } = filters;
+  const { platform, game, sentiment, startDate, endDate, sort } = filters;
   // if sort == "Ascnding" then sort by timestamp_updated_date asc
   // if sort == "Descending" then sort by timestamp_updated_date desc
   const sortValue = sort === "Ascending" 
@@ -39,6 +39,7 @@ export const getGameReviews = async (
       fq: [
         platform && `platform:${platform}`, // Only this gets included
         game && `game:"${game}"`,
+        sentiment && `sentiment:"${sentiment}"`,
         startDate && !endDate && `timestamp_updated_date:[${startDate}T00:00:00Z TO *]`, // solr requires the hhmmssZ to be included to filter
         startDate && endDate && `timestamp_updated_date:[${startDate}T00:00:00Z TO ${endDate}T00:00:00Z]`, // solr requires the hhmmssZ to be included to filter
       ].filter(Boolean),
@@ -48,12 +49,13 @@ export const getGameReviews = async (
   }
   else if (tab === "reviews"){
     params = {
-      q: query || "*:*",
+      q: query ? `review_text:${query}` : "*:*",
       rows: rows,
       start: start,
       fq: [
         platform && `platform:${platform}`, // Only this gets included
         game && `game:"${game}"`,
+        sentiment && `sentiment:"${sentiment}"`,
         startDate && !endDate && `timestamp_updated_date:[${startDate}T00:00:00Z TO *]`, // solr requires the hhmmssZ to be included to filter
         startDate && endDate && `timestamp_updated_date:[${startDate}T00:00:00Z TO ${endDate}T00:00:00Z]`, // solr requires the hhmmssZ to be included to filter
       ].filter(Boolean),

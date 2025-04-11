@@ -21,7 +21,9 @@ export default function SentimentBadge({ sentiment }) {
 
   return (
     <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getSentimentBgColor(sentimentValue)}`}>
-      {sentimentValue}
+      {sentimentValue.charAt(0).toUpperCase() + sentimentValue.slice(1)}
     </div>
+
+      
   );
 }

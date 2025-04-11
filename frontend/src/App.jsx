@@ -17,6 +17,7 @@ function App() {
   const [filters, setFilters] = useState({
     platform: "",
     game: "",
+    sentiment : "",
     startDate: "",
     endDate: "",
     sort: "",
@@ -37,7 +38,6 @@ function App() {
 
   const [sidebarVisible, setSidebarVisible] = useState(true); // State for sidebar visibility
   const [activeTab, setActiveTab] = useState("reviews"); // State for sidebar visibility
-  const [chartType, setChartType] = useState("pie"); // State for chart type
   const searchSolr = async (query, page, rows, filters) => {
     setLoading(true);
 
@@ -90,7 +90,7 @@ function App() {
     return(
       <div className = "space-x-2 p-8 flex items-center flex flex-col">
       <p>{displayText}</p>
-      <div className = "flex flex-row space-x-2 text-2xl font-bold">
+      <div className = "flex flex-row space-x-1 text-xl font-bold">
       <p>{platformText}</p>
       <p>{gameText}</p>
       <p>{dateText}</p>
@@ -102,8 +102,9 @@ function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
-      <div className="mt-20">
-        <h3 className="text-3xl font-bold flex justify-center">Game Reviews</h3>
+      <div className="">
+        <h3 className="text-3xl font-bold flex justify-center mt-20">Game Reviews</h3>
+        <h3 className="text-wxl flex justify-center">Find Game Reviews from the Top 10 RPG Games currently!</h3>
         <SearchBar
           query={query}
           setQuery={setQuery}
@@ -115,7 +116,7 @@ function App() {
         <div
           className={`w-1/4 p-4 mt-20 transition-all duration-300 ${sidebarVisible ? "block" : "hidden"}`}
         >
-          <div className="rounded-lg bg-white shadow-lg p-4">
+          <div className="sticky top-20 rounded-lg bg-white shadow-lg p-4">
             <h3 className="text-xl font-semibold mb-2">Filters</h3>
             {/* Platforms */}
             <div className="mb-2">
@@ -149,6 +150,23 @@ function App() {
                     {game}
                   </option>
                 ))}
+              </select>
+            </div>
+            {/* Sentiment */}
+            <div className="mb-2">
+              <label className="block text-sm font-medium">Sentiment</label>
+              <select
+                className="border rounded p-1 w-full"
+                value={filters.sentiment}
+                onChange={(e) =>
+                  setFilters({ ...filters, sentiment: e.target.value })
+                }
+              >
+                <option value="">All</option>
+                <option value="positive">Positive</option>
+                <option value="negative">Negative</option>
+                <option value="neutral">Neutral</option>
+
               </select>
             </div>
             {/* Start Date to End Date */}
@@ -290,7 +308,7 @@ function App() {
                 </div>
               </div>
             ) : (
-              <div className = "">
+              <div className = "sm:w-1/3 md:w-1/2 lg:w-full">
                 {/* Content for Charts */}
                 {/* pie chart */}
                 <div className = "bg-white rounded-xl">
@@ -303,7 +321,7 @@ function App() {
                 <div className = "bg-white rounded-xl mt-2">
                 <div className = "">{getDisplayText("bar")}</div>
                 <div className = "flex justify-center items-center w-full">
-                <SentimentBarChart solrData = {searchResults} />
+                <SentimentBarChart solrData = {searchResults ?? ""} />
                 </div>
                 </div>
               </div>
