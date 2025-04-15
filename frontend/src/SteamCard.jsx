@@ -27,7 +27,7 @@ function SteamCard({ review }) {
   } = review;
 
   return (
-    <div className="border border-gray-300 shadow-lg rounded-lg w-full mx-auto bg-gray-100">
+    <div className="shadow-lg rounded-lg w-full mx-auto bg-gray-100">
       {/* game name and platform logo */}
       <div className="text-white bg-[#2a475e] text-white py-2 px-4 rounded-t-lg flex flex-row justify-between items-center">
         <div>

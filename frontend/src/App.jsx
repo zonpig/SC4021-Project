@@ -7,6 +7,7 @@ import MetacriticCard from "./MetacriticCard.jsx";
 import SentimentPieChart from "./SentimentPieChart.jsx";
 import SentimentBarChart from "./SentimentBarChart.jsx";
 
+
 function App() {
   const [query, setQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -101,17 +102,19 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div className="min-h-screen flex flex-col bg-gradient-to-r from-[#f6eee3] via-[#ecfdf5] to-[#fbeff2]">
       <div className="">
-        <h3 className="text-3xl font-bold flex justify-center mt-20">Game Reviews</h3>
-        <h3 className="text-wxl flex justify-center">Find Game Reviews from the Top 10 RPG Games currently!</h3>
+      <h3 className={`text-3xl font-bold flex justify-center mt-20`}>
+  Game Reviews
+</h3>        <h3 className="text-wxl flex justify-center">Find Game Reviews from the Top 10 RPG Games currently!</h3>
         <SearchBar
           query={query}
           setQuery={setQuery}
           setSearchResults={setSearchResults}
         />
       </div>
-      <div className="flex flex-row w-full">
+
+      <div className="flex flex-row w-full ">
         {/* Sidebar with toggle */}
         <div
           className={`w-1/4 p-4 mt-20 transition-all duration-300 ${sidebarVisible ? "block" : "hidden"}`}
@@ -120,9 +123,9 @@ function App() {
             <h3 className="text-xl font-semibold mb-2">Filters</h3>
             {/* Platforms */}
             <div className="mb-2">
-              <label className="block text-sm font-medium">Platform</label>
+              <label className="block text-sm font-base">Platform</label>
               <select
-                className="border rounded p-1 w-full"
+                className="bg-gray-100 rounded p-1 w-full"
                 value={filters.platform}
                 onChange={(e) =>
                   setFilters({ ...filters, platform: e.target.value })
@@ -136,9 +139,9 @@ function App() {
             </div>
             {/* Games */}
             <div className="mb-2">
-              <label className="block text-sm font-medium">Game</label>
+              <label className="block text-sm font-base">Game</label>
               <select
-                className="border rounded p-1 w-full"
+                className="bg-gray-100 rounded p-1 w-full"
                 value={filters.game}
                 onChange={(e) =>
                   setFilters({ ...filters, game: e.target.value })
@@ -154,9 +157,9 @@ function App() {
             </div>
             {/* Sentiment */}
             <div className="mb-2">
-              <label className="block text-sm font-medium">Sentiment</label>
+              <label className="block text-sm font-base">Sentiment</label>
               <select
-                className="border rounded p-1 w-full"
+                className="bg-gray-100 rounded p-1 w-full"
                 value={filters.sentiment}
                 onChange={(e) =>
                   setFilters({ ...filters, sentiment: e.target.value })
@@ -171,10 +174,10 @@ function App() {
             </div>
             {/* Start Date to End Date */}
             <div className="mb-2">
-              <label className="block text-sm font-medium">Start Date</label>
+              <label className="block text-sm font-base">Start Date</label>
               <input
                 type="date"
-                className="border rounded p-1 w-full"
+                className="bg-gray-100 rounded p-1 w-full"
                 value={filters.startDate}
                 onChange={(e) =>
                   setFilters({ ...filters, startDate: e.target.value })
@@ -182,10 +185,10 @@ function App() {
               />
             </div>
             <div className="mb-2">
-              <label className="block text-sm font-medium">End Date</label>
+              <label className="block text-sm font-base">End Date</label>
               <input
                 type="date"
-                className="border rounded p-1 w-full"
+                className="bg-gray-100 rounded p-1 w-full"
                 value={filters.endDate}
                 onChange={(e) =>
                   setFilters({ ...filters, endDate: e.target.value })
@@ -194,9 +197,9 @@ function App() {
             </div>
             {/* Sort */}
             <div className="mb-2">
-              <label className="block text-sm font-medium">Sort By</label>
+              <label className="block text-sm font-base">Sort By</label>
               <select
-                className="border rounded p-1 w-full"
+                className="bg-gray-100 rounded p-1 w-full"
                 value={filters.sort}
                 onChange={(e) =>
                   setFilters({ ...filters, sort: e.target.value })
