@@ -33,7 +33,7 @@ export const getGameReviews = async (
     // run this: curl "http://localhost:8983/solr/game_reviews/select?q=%2A%3A%2A&rows=0&start=0&sort="
     // to find how many rows, then edit accordingly in the rows param
     params = {
-      q: query || "*:*",
+      q: query ? `review_text:${query}` : "*:*",
       rows: 156964,
       start: 0,
       fq: [
