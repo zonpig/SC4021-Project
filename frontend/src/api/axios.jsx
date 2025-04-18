@@ -51,7 +51,7 @@ export const getGameReviews = async (
     };
   } else if (tab === "reviews") {
     params = {
-      q: query ? `review_text:${query}` : "*:*",
+      q: query ? `review_text:${query} OR review_text_unstem:${query}` : "*:*",
       rows: rows,
       start: start,
       fq: [
