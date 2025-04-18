@@ -2,7 +2,7 @@ import { PieChart, Pie, Cell, Tooltip, Legend, Label } from "recharts";
 
 import { useMemo } from "react";
 
-const COLORS = ["#55B460", "#F2BB77", "#EE613F"]; // Positive, Negative, Neutral colors
+const COLORS = ["#55B460", "#EE613F", "#F2BB77"]; // Positive, Negative, Neutral colors
 
 const SentimentPieChart = ({ solrData }) => {
   // Step 1: Process data using useMemo (good practice)
@@ -64,7 +64,7 @@ const SentimentPieChart = ({ solrData }) => {
             wrapperStyle={{
               position: "absolute", // Absolute positioning
               top: 150, // Adjust top position
-              right: 250, // Adjust right position
+              right: 210, // Adjust right position
             }}
           />
         </PieChart>

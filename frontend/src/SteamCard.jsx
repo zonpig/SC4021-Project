@@ -43,18 +43,16 @@ function SteamCard({ review }) {
       </div>
       {/* review details */}
       <div className="p-4 rounded-b-lg flex flex-col bg-white">
-        {/* display steamId and sentiment */}
-                <div className = "flex flex-row justify-between items-center">
-                  <div>
-                  <p className="text-sm font-bold">
-                  ID: {author_steamid}
-                  </p>
-
-                  </div>
-                  <div className="flex justify-end">
-                    <SentimentBadge sentiment={sentiment} />
-                  </div>
-                </div>
+        <div className="flex flex-row justify-between items-center">
+          <div>
+            <p className="text-sm font-bold">
+            ID: {String(author_steamid).replace('.', '').split('e+')[0]}
+            </p>
+          </div>
+          <div className="flex justify-end">
+            <SentimentBadge sentiment={sentiment} />
+          </div>
+        </div>
         {/* review text */}
         <div className="rounded-lg bg-gray-200 p-4 my-2">
           <p className="text-gray-800 text-sm">{review_text}</p>
@@ -65,7 +63,7 @@ function SteamCard({ review }) {
             <p className="text-gray-600 text-sm">Votes Up: {votes_up}</p>
         <p className="text-gray-600 text-sm">Funny Votes: {votes_funny}</p>
         <p className="text-gray-600 text-sm">
-          Weighted Score: {weighted_vote_score}
+        Weighted Score: {Number(weighted_vote_score).toFixed(2)}
         </p>
             </div>
             <div className="text-gray-500 text-sm flex justify-end">

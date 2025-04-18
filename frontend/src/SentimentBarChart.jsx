@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   LabelList,
 } from "recharts";
-const COLORS = ["#55B460", "#F2BB77", "#EE613F"]; // Positive, Negative, Neutral colors
+const COLORS = ["#55B460", "#EE613F", "#F2BB77"]; // Positive, Negative, Neutral colors
 
 const SentimentChart = ({ solrData }) => {
   const [granularity, setGranularity] = useState("year"); // year, month, day
@@ -152,34 +152,37 @@ const SentimentChart = ({ solrData }) => {
   return solrData && solrData.length === 0 ? (
     <div>Loading...</div>
   ) : (
-    <div className="w-full p-8">
+    <div className="w-full mx-8">
       {/* Granularity Selector */}
-      <div className="flex mb-4">
-        <button
-          className={`p-2 w-full ${granularity === "year" ? "bg-blue-400" : "bg-gray-200"}`}
+        <div className="flex justify-center mb-4 w-full">
+          <div className="flex justify-center w-2/3">
+            <button
+          className={`p-2 rounded-l-lg w-full ${granularity === "year" ? "bg-blue-400" : "bg-gray-200"}`}
           onClick={() => handleGranularityChange("year")}
-        >
+            >
           Year
-        </button>
-        <button
+            </button>
+            <button
           className={`p-2 w-full ${granularity === "month" ? "bg-blue-400" : "bg-gray-200"}`}
           onClick={() => handleGranularityChange("month")}
-        >
+            >
           Month
-        </button>
-        <button
-          className={`p-2 w-full ${granularity === "day" ? "bg-blue-400" : "bg-gray-200"}`}
+            </button>
+            <button
+          className={`p-2 rounded-r-lg w-full ${granularity === "day" ? "bg-blue-400" : "bg-gray-200"}`}
           onClick={() => handleGranularityChange("day")}
-        >
+            >
           Day
-        </button>
-      </div>
+            </button>
+          </div>
+        </div>
 
-      {/* Year Selector (Visible when granularity is year) */}
+        {/* Year Selector (Visible when granularity is year) */}
+        <div className = "flex justify-center space-x-2">
       {
         //   granularity === "year" &&
         <select
-          className="border"
+          className="bg-gray-200 rounded-lg h-6"
           onChange={(e) => handleYearChange(e.target.value)}
           value={selectedYear}
         >
@@ -199,7 +202,7 @@ const SentimentChart = ({ solrData }) => {
         //   granularity === "month" &&
         selectedYear && (
           <select
-            className="border"
+            className="bg-gray-200 rounded-lg"
             onChange={(e) => handleMonthChange(e.target.value)}
             value={selectedMonth}
           >
@@ -215,12 +218,13 @@ const SentimentChart = ({ solrData }) => {
           </select>
         )
       }
+      </div>
 
       {/* Data Rendering */}
-      <ResponsiveContainer width="100%" height={500}>
+      <ResponsiveContainer width="100%" height={500} >
         <BarChart
           data={getFilteredData()}
-          margin={{ top: 30, right: 0, bottom: 100, left: 0 }}
+          margin={{ top: 30, right: 0, bottom: 50, left: 0 }}
         >
           <XAxis
             dataKey="date"
