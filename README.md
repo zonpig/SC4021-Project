@@ -10,7 +10,7 @@ Team Members:
 - Eric Tan Jun Ren
 - Quek Ying En Delaney
 
-The youtube link to a 5 minute video presentation of our project is [here](https://www.youtube.com/).
+The youtube link to a 5 minute video presentation of our project is [here](https://www.youtube.com/watch?v=q6dX8IKhGCU).
 
 ## Table of Contents
 
